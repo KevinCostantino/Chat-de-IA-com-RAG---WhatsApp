@@ -2,11 +2,21 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import type { Document } from '../lib/supabase'
 
+type UploadHistory = {
+  id: string
+  fileName: string
+  timestamp: string
+  status: 'success' | 'error'
+  message?: string
+}
+
 export default function DocumentManager() {
   const [documents, setDocuments] = useState<Document[]>([])
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(true)
   const [dragOver, setDragOver] = useState(false)
+  const [uploadHistory, setUploadHistory] = useState<UploadHistory[]>([])
+  const [showHistory, setShowHistory] = useState(true)
 
   useEffect(() => {
     loadDocuments()
@@ -41,10 +51,29 @@ export default function DocumentManager() {
       
       console.log('Upload realizado com sucesso:', response.data)
       
+      // Adicionar ao histórico de uploads
+      const now = new Date()
+      const timestamp = now.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+      
+      const newHistoryItem: UploadHistory = {
+        id: Date.now().toString(),
+        fileName: file.name,
+        timestamp: timestamp,
+        status: 'success',
+        message: `Arquivo ${file.name} enviado com sucesso!`
+      }
+      
+      setUploadHistory(prev => [newHistoryItem, ...prev])
+      
       // Recarregar documentos
       await loadDocuments()
-      
-      alert(`✅ Arquivo ${file.name} enviado com sucesso!`)
     } catch (error: any) {
       console.error('Erro no upload:', error)
       console.error('Resposta do servidor:', error.response?.data)
@@ -54,7 +83,26 @@ export default function DocumentManager() {
                           error.message || 
                           'Erro desconhecido'
       
-      alert(`❌ Erro ao enviar ${file.name}: ${errorMessage}`)
+      // Adicionar erro ao histórico
+      const now = new Date()
+      const timestamp = now.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+      
+      const errorHistoryItem: UploadHistory = {
+        id: Date.now().toString(),
+        fileName: file.name,
+        timestamp: timestamp,
+        status: 'error',
+        message: errorMessage
+      }
+      
+      setUploadHistory(prev => [errorHistoryItem, ...prev])
     } finally {
       setUploading(false)
     }
@@ -137,7 +185,7 @@ export default function DocumentManager() {
         {uploading ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
             <div className="loading" />
-            <span>Enviando documentos...</span>
+            <span>📤 Enviando documentos...</span>
           </div>
         ) : (
           <div>
@@ -151,6 +199,119 @@ export default function DocumentManager() {
           </div>
         )}
       </div>
+
+      {/* Upload History */}
+      {uploadHistory.length > 0 && (
+        <div style={{ margin: '1rem 0' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '0.5rem'
+          }}>
+            <h3 style={{ margin: 0, fontSize: '1rem' }}>
+              📋 Histórico de Uploads ({uploadHistory.length})
+            </h3>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                style={{
+                  background: 'var(--card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '4px',
+                  color: 'var(--text)',
+                  padding: '0.25rem 0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem'
+                }}
+              >
+                {showHistory ? '🔽 Ocultar' : '▶️ Mostrar'}
+              </button>
+              <button
+                onClick={() => setUploadHistory([])}
+                style={{
+                  background: 'var(--error)',
+                  border: 'none',
+                  borderRadius: '4px',
+                  color: 'white',
+                  padding: '0.25rem 0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem'
+                }}
+              >
+                🗑️ Limpar
+              </button>
+            </div>
+          </div>
+          
+          {showHistory && (
+            <div 
+              className="upload-history-container"
+              style={{
+                maxHeight: '200px',
+                overflowY: 'auto',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                background: 'var(--card)'
+              }}>
+              {uploadHistory.map((item) => (
+                <div
+                  key={item.id}
+                  style={{
+                    padding: '0.75rem',
+                    borderBottom: '1px solid var(--border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    background: item.status === 'success' 
+                      ? 'rgba(16, 185, 129, 0.05)' 
+                      : 'rgba(239, 68, 68, 0.05)',
+                    animation: 'slideIn 0.3s ease-out'
+                  }}
+                >
+                  <div style={{ fontSize: '1.25rem' }}>
+                    {item.status === 'success' ? '✅' : '❌'}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontWeight: 'bold',
+                      marginBottom: '0.25rem',
+                      color: item.status === 'success' ? 'var(--success)' : 'var(--error)'
+                    }}>
+                      {item.status === 'success' ? 'Upload realizado' : 'Erro no upload'}
+                    </div>
+                    <div style={{ fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+                      📄 <strong>{item.fileName}</strong>
+                    </div>
+                    {item.message && (
+                      <div style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: '0.25rem' }}>
+                        {item.message}
+                      </div>
+                    )}
+                    <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                      🕒 {item.timestamp}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setUploadHistory(prev => prev.filter(h => h.id !== item.id))}
+                    style={{
+                      background: 'rgba(100, 116, 139, 0.1)',
+                      border: 'none',
+                      borderRadius: '4px',
+                      color: 'var(--text-muted)',
+                      padding: '0.25rem',
+                      cursor: 'pointer',
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Documents List */}
       {loading ? (
@@ -184,7 +345,26 @@ export default function DocumentManager() {
                 </div>
                 
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                  Criado em: {new Date(doc.created_at).toLocaleDateString('pt-BR')}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                    <span>📅</span>
+                    <span>
+                      {new Date(doc.created_at).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      })}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span>🕒</span>
+                    <span>
+                      {new Date(doc.created_at).toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                      })}
+                    </span>
+                  </div>
                 </div>
                 
                 <div className="document-actions">

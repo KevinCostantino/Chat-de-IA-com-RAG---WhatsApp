@@ -1,0 +1,13 @@
+Teste de upload visual
+
+Este arquivo será usado para testar:
+1. Upload visual com notificação
+2. Exibição de data e hora
+3. Animação de sucesso
+4. Lista atualizada de documentos
+
+Conteúdo sobre teste:
+- Sistema de notificação visual implementado
+- Timestamp com data e hora completa
+- Animação suave de entrada
+- Interface melhorada para upload

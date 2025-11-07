@@ -155,9 +155,31 @@ app.post('/api/chat', async (req, res) => {
 
   } catch (error) {
     console.error('[CHAT] Erro:', error.response?.data || error.message)
+    
+    // Resposta inteligente mesmo com erro na IA
+    let fallbackReply = ''
+    if (relevantDocs && relevantDocs.length > 0) {
+      const docInfo = relevantDocs.map(doc => `📄 ${doc.name}`).join(', ')
+      const contextInfo = relevantDocs[0].content.substring(0, 400) + '...'
+      
+      fallbackReply = `🤖 **Sistema RAG ativo - Resposta baseada em documentos:**\n\n` +
+                     `📚 **Documentos consultados:** ${docInfo}\n\n` +
+                     `📝 **Informação encontrada:**\n${contextInfo}\n\n` +
+                     `⚠️ **Erro na IA:** ${error.response?.data?.error?.message || error.message}\n` +
+                     `💡 **Solução:** Obtenha uma API Key válida em https://openrouter.ai/keys`
+    } else {
+      fallbackReply = `❌ **Erro:** ${error.response?.data?.error?.message || error.message}\n\n` +
+                     `🔧 **Para resolver:**\n` +
+                     `1. Acesse https://openrouter.ai/keys\n` +
+                     `2. Crie uma conta gratuita\n` +
+                     `3. Gere uma nova API Key\n` +
+                     `4. Atualize o arquivo .env com a nova chave`
+    }
+    
     res.json({ 
-      reply: `Erro ao processar mensagem: ${error.response?.data?.error?.message || error.message}. Verifique sua API Key do Open Router.`,
-      context: null
+      reply: fallbackReply,
+      context: relevantDocs || null,
+      error: true
     })
   }
 })
@@ -335,11 +357,23 @@ app.post('/api/webhook', async (req, res) => {
         contextDocs = relevantDocs
       }
 
-      if (!apiKey || !apiKey.startsWith('sk-or-')) {
-        console.log('[WEBHOOK] Sem API Key válida - usando resposta básica')
-        reply = `Olá! Recebi sua mensagem: "${message}". ${relevantDocs.length > 0 ? 
-          `Encontrei ${relevantDocs.length} documento(s) relevante(s) mas preciso de uma API Key válida do Open Router para gerar respostas inteligentes.` : 
-          'Configure uma API Key do Open Router para respostas mais inteligentes.'}`
+      if (!apiKey || !apiKey.startsWith('sk-or-') || apiKey === 'COLE_SUA_NOVA_API_KEY_AQUI') {
+        console.log('[WEBHOOK] API Key inválida ou não configurada - usando resposta com RAG')
+        
+        // Resposta inteligente usando apenas RAG sem IA
+        if (relevantDocs.length > 0) {
+          const docInfo = relevantDocs.map(doc => `📄 ${doc.name}`).join(', ')
+          const contextInfo = relevantDocs[0].content.substring(0, 300) + '...'
+          
+          reply = `🤖 **Resposta baseada em documentos encontrados:**\n\n` +
+                  `📚 **Documentos consultados:** ${docInfo}\n\n` +
+                  `📝 **Informação relevante:**\n${contextInfo}\n\n` +
+                  `⚠️ *Para respostas mais elaboradas com IA, configure uma API Key válida do Open Router.*`
+        } else {
+          reply = `Olá! Recebi sua mensagem: "${message}"\n\n` +
+                  `❌ Nenhum documento relevante encontrado na base de conhecimento.\n` +
+                  `⚠️ Para respostas inteligentes, configure uma API Key válida do Open Router em: https://openrouter.ai/keys`
+        }
       } else {
         console.log('[WEBHOOK] Usando Open Router com modelo:', model)
 

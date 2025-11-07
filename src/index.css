@@ -313,3 +313,48 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@keyframes slideIn {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+}
+
+/* Upload history scrollbar styles */
+.upload-history-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--card);
+}
+
+.upload-history-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.upload-history-container::-webkit-scrollbar-track {
+  background: var(--card);
+}
+
+.upload-history-container::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.upload-history-container::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}

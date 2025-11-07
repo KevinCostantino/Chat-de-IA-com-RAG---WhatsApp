@@ -1,0 +1,7 @@
+Desafio: Criar sozinho uma estrutura backend voltada para gerenciamento de tarefas com microserviços em mente usando python, 
+ademais de criar imagens em docker de todo o backend. 
+Eu tinha pouca experiência com backend naquele momento, para conseguir realizar essa tarefa eu comecei a priorizar a estrutura do 
+código e sua organização para me precaver de problemas que eu poderia 
+ter com o desenvolvimento do projeto e que eu demoraria mais tempo para achar e resolver. Acabei tendo dificuldades ainda mas que com certeza 
+foram menores em comparação ao que eu teria se não tivesse me preparado, considerando que eu nunca tinha trabalhado em um projeto de 
+backend que envolvesse microserviços e docker por conta própria

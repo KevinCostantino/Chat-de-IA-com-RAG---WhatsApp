@@ -1,0 +1,25 @@
+TESTE DE HISTÓRICO DE UPLOAD
+
+Este arquivo foi criado especificamente para testar o sistema de histórico de upload.
+
+Funcionalidades testadas:
+✅ Upload com histórico visual
+✅ Timestamp detalhado (data e hora)
+✅ Status de sucesso/erro
+✅ Botões para ocultar/mostrar histórico
+✅ Botão para limpar histórico
+✅ Remoção individual de itens
+✅ Scroll no histórico quando há muitos itens
+✅ Animações suaves
+
+Informações do arquivo:
+- Nome: teste-historico.txt
+- Conteúdo: Documento de teste para histórico
+- Tamanho: Pequeno (menos de 1KB)
+- Formato: Texto simples
+
+Este arquivo deve aparecer no histórico com:
+- Ícone de sucesso (✅)
+- Nome do arquivo
+- Data e hora do upload
+- Mensagem de confirmação

@@ -1,0 +1,8 @@
+Este é um documento de teste para verificar o sistema de upload.
+
+O arquivo contém informações sobre:
+- Sistema de upload funcionando
+- Integração com RAG
+- Teste de processamento de arquivos
+
+Este documento será usado para testar se o sistema consegue fazer upload e processar arquivos corretamente.
