@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import ConfigPanel from './components/ConfigPanel'
 import Chat from './components/Chat'
 import DocumentManager from './components/DocumentManager'
